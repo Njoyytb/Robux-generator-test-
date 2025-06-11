@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Robux Generator</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #00ffb3, #00cfff);
+      color: #fff;
+      padding: 50px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+    }
+
+    input, button {
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      margin: 10px;
+    }
+
+    .loader {
+      font-size: 1.2em;
+      display: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎁 Générateur de Robux 2025</h1>
+  <p>Entre ton pseudo Roblox :</p>
+  <input type="text" id="username" placeholder="Ex: roblox_pro_123">
+  <br>
+  <button onclick="startGenerator()">Générer</button>
+
+  <div class="loader" id="loader">Connexion aux serveurs Roblox...</div>
+  <div class="hidden" id="result">
+    <p>✔️ Robux générés avec succès !</p>
+    <p>Pour les recevoir : <a href="https://linkvertise.com/tonlien" target="_blank" style="color: yellow; font-weight: bold;">Clique ici pour finaliser</a></p>
+  </div>
+
+  <script>
+    function startGenerator() {
+      const username = document.getElementById("username").value;
+      if (!username) {
+        alert("Entre ton pseudo Roblox !");
+        return;
+      }
+
+      document.getElementById("loader").style.display = "block";
+      
+      setTimeout(() => {
+        document.getElementById("loader").innerText = "Génération de 10 000 Robux pour " + username + "...";
+      }, 2000);
+
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("result").classList.remove("hidden");
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
