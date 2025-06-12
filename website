@@ -1,70 +1,268 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Robux Generator</title>
+  <title>Générateur Multi-Jeux</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      background: linear-gradient(145deg, #1d1f2f, #12131c);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      padding: 40px;
       text-align: center;
-      background: linear-gradient(135deg, #00ffb3, #00cfff);
-      color: #fff;
-      padding: 50px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      background: #2b2d42;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 450px;
+      margin: auto;
+      position: relative;
+      z-index: 2;
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 2.3em;
+      margin-bottom: 20px;
     }
 
-    input, button {
+    select, input, button {
       padding: 10px;
-      border: none;
-      border-radius: 10px;
+      font-size: 1em;
       margin: 10px;
+      border-radius: 10px;
+      border: none;
+      width: 80%;
+    }
+
+    button {
+      background-color: #00ffbb;
+      color: black;
+      cursor: pointer;
+      width: 85%;
     }
 
     .loader {
-      font-size: 1.2em;
-      display: none;
+      margin-top: 20px;
+      font-size: 1.1em;
     }
 
     .hidden {
       display: none;
     }
+
+    a {
+      color: yellow;
+      font-weight: bold;
+    }
+
+    .lang-select {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      z-index: 3;
+    }
+
+    .lang-select select {
+      padding: 5px;
+      border-radius: 8px;
+    }
+
+    /* Animation des monnaies (image) */
+    .coin-img {
+      position: fixed;
+      top: -60px;
+      width: 40px;
+      animation: fall 3s linear forwards;
+      z-index: 1;
+      opacity: 0.9;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh);
+        opacity: 0;
+      }
+    }
+
+    /* Message défilant */
+    .floating-message {
+      margin-top: 15px;
+      font-size: 1em;
+      color: #00ffbb;
+      font-weight: bold;
+      animation: fadeInOut 4s ease-in-out infinite;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      20%, 80% { opacity: 1; }
+    }
   </style>
 </head>
 <body>
-  <h1>🎁 Générateur de Robux 2025</h1>
-  <p>Entre ton pseudo Roblox :</p>
-  <input type="text" id="username" placeholder="Ex: roblox_pro_123">
-  <br>
-  <button onclick="startGenerator()">Générer</button>
 
-  <div class="loader" id="loader">Connexion aux serveurs Roblox...</div>
-  <div class="hidden" id="result">
-    <p>✔️ Robux générés avec succès !</p>
-    <p>Pour les recevoir : <a href="https://linkvertise.com/tonlien" target="_blank" style="color: yellow; font-weight: bold;">Clique ici pour finaliser</a></p>
+  <div class="lang-select">
+    🌐
+    <select id="lang" onchange="changeLanguage()">
+      <option value="fr">FR</option>
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+    </select>
+  </div>
+
+  <div class="container">
+    <h1 id="title">🎮 Générateur Multi-Jeux</h1>
+
+    <select id="game" onchange="updatePlatformOptions()">
+      <option value="Robux">💰 Roblox (Robux)</option>
+      <option value="V-Bucks">🪙 Fortnite (V-Bucks)</option>
+      <option value="FIFA">⚽ FIFA (Coins)</option>
+      <option value="Stumble">🤸‍♂️ Stumble Guys (Gemmes)</option>
+    </select>
+
+    <input type="text" id="username" placeholder="Pseudo Roblox / Epic...">
+
+    <select id="amount">
+      <option value="1000">1 000</option>
+      <option value="2500">2 500</option>
+      <option value="5000">5 000</option>
+      <option value="10000">10 000</option>
+    </select>
+
+    <select id="platform"></select>
+
+    <br>
+    <button onclick="startGeneration()">Générer</button>
+
+    <div class="loader hidden" id="loader">Connexion au serveur...</div>
+
+    <div class="floating-message hidden" id="floatingMessage"></div>
+
+    <div class="hidden" id="result">
+      <p>✔️ Ressources générées avec succès !</p>
+      <p><a id="link" href="#" target="_blank">Clique ici pour finaliser</a></p>
+    </div>
   </div>
 
   <script>
-    function startGenerator() {
+    const translations = {
+      fr: {
+        title: "🎮 Générateur Multi-Jeux",
+        placeholder: "Pseudo Roblox / Epic...",
+        success: "✔️ Ressources générées avec succès !",
+        linkText: "Clique ici pour finaliser",
+        loading: "Connexion au serveur..."
+      },
+      en: {
+        title: "🎮 Multi-Game Generator",
+        placeholder: "Your username",
+        success: "✔️ Resources generated successfully!",
+        linkText: "Click here to finish",
+        loading: "Connecting to server..."
+      },
+      es: {
+        title: "🎮 Generador Multi-Juegos",
+        placeholder: "Nombre de usuario",
+        success: "✔️ ¡Recursos generados con éxito!",
+        linkText: "Haz clic aquí para finalizar",
+        loading: "Conectando al servidor..."
+      }
+    };
+
+    const platforms = {
+      Robux: ["PC", "iOS", "Android", "Xbox"],
+      "V-Bucks": ["PC", "PS4", "Xbox", "Switch", "Mobile"],
+      FIFA: ["PC", "PS5", "Xbox"],
+      Stumble: ["Android", "iOS", "Steam"]
+    };
+
+    const coinImages = {
+      Robux: "https://static.wikia.nocookie.net/roblox/images/7/7c/Robux_2019_Icon.png",
+      "V-Bucks": "https://fortnite-api.com/images/vbucks.png",
+      FIFA: "https://cdn-icons-png.flaticon.com/512/872/872255.png",
+      Stumble: "https://static.wikia.nocookie.net/stumbleguys/images/f/f7/Gems.png"
+    };
+
+    function updatePlatformOptions() {
+      const game = document.getElementById("game").value;
+      const platformSelect = document.getElementById("platform");
+      platformSelect.innerHTML = "";
+      platforms[game].forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p;
+        opt.textContent = p;
+        platformSelect.appendChild(opt);
+      });
+    }
+
+    function changeLanguage() {
+      const lang = document.getElementById("lang").value;
+      document.getElementById("title").textContent = translations[lang].title;
+      document.getElementById("username").placeholder = translations[lang].placeholder;
+      document.getElementById("loader").textContent = translations[lang].loading;
+      document.getElementById("result").children[0].textContent = translations[lang].success;
+      document.getElementById("link").textContent = translations[lang].linkText;
+    }
+
+    function createCoin(game) {
+      const img = document.createElement("img");
+      img.src = coinImages[game] || "";
+      img.className = "coin-img";
+      img.style.left = Math.random() * 100 + "vw";
+      document.body.appendChild(img);
+
+      setTimeout(() => img.remove(), 3000);
+    }
+
+    function showFloatingMessage(username, amount, game) {
+      const msg = document.getElementById("floatingMessage");
+      msg.textContent = `${username} vient de gagner ${amount} ${game}`;
+      msg.classList.remove("hidden");
+      setTimeout(() => msg.classList.add("hidden"), 5000);
+    }
+
+    function startGeneration() {
       const username = document.getElementById("username").value;
+      const game = document.getElementById("game").value;
+      const amount = document.getElementById("amount").value;
+      const platform = document.getElementById("platform").value;
+
+      const loader = document.getElementById("loader");
+      const result = document.getElementById("result");
+      const link = document.getElementById("link");
+
       if (!username) {
-        alert("Entre ton pseudo Roblox !");
+        alert("Entre ton pseudo !");
         return;
       }
 
-      document.getElementById("loader").style.display = "block";
-      
+      loader.textContent = "Connexion au serveur " + game + "...";
+      loader.classList.remove("hidden");
+      result.classList.add("hidden");
+
       setTimeout(() => {
-        document.getElementById("loader").innerText = "Génération de 10 000 Robux pour " + username + "...";
+        loader.textContent = `Génération de ${amount} ${game} pour ${username} (${platform})...`;
       }, 2000);
 
       setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("result").classList.remove("hidden");
+        loader.classList.add("hidden");
+        result.classList.remove("hidden");
+        link.href = "https://linkvertise.com/tonlien"; // Mets ton vrai lien ici
+
+        for (let i = 0; i < 30; i++) {
+          setTimeout(() => createCoin(game), i * 100);
+        }
+
+        showFloatingMessage(username, amount, game);
       }, 5000);
     }
+
+    // Initialisation
+    updatePlatformOptions();
   </script>
+
 </body>
 </html>
